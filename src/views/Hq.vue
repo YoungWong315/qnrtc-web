@@ -1,8 +1,8 @@
 <template>
   <div>
-    <p>总部端</p>
-    <button @click="goTeacher">去老师端看</button>
-    <button @click="goStudent">去学生端看</button>
+    <p>老师端</p>
+    <button @click="goStudent1">去学生端1</button>
+    <button @click="goStudent2">去学生端2</button>
     <div>
       <!-- 自己的视频 -->
       <div class="localtracks-wrap">
@@ -17,10 +17,10 @@
         </div>
       </div>
       <!-- 别人的订阅 -->
-      <!-- <div class="remotetracks-wrap">
+      <div class="remotetracks-wrap">
         <p>订阅音视频轨</p>
         <div id="remotetracks" style="width: 200px;"></div>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -39,22 +39,24 @@ export default {
     console.log(this.$service)
   },
   methods: {
-    goTeacher() {
-      const routeUrl = this.$router.resolve({
-        name: 'Teacher',
-        query: {
-          token:
-            'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:lqqT6agtWcr7Lu5RGKO7z5S-CM8=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIyMzQ1NjciLCJleHBpcmVBdCI6MTU5ODQ4MjM1NSwicGVybWlzc2lvbiI6InVzZXIifQ==',
-        },
-      })
-      window.open(routeUrl.href, '_blank')
-    },
-    goStudent() {
+    goStudent1() {
       const routeUrl = this.$router.resolve({
         name: 'Student',
         query: {
           token:
             'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:AfkVbu_OJAznCbdCZZsw_QyeIqM=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIxMjM0NjYiLCJleHBpcmVBdCI6MTU5ODU4MDkxNiwicGVybWlzc2lvbiI6InVzZXIifQ==',
+          index: '1',
+        },
+      })
+      window.open(routeUrl.href, '_blank')
+    },
+    goStudent2() {
+      const routeUrl = this.$router.resolve({
+        name: 'Student',
+        query: {
+          token:
+            'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:Kt1ivTcHXhj8eY-OSZwjE9p3DH0=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIxMjM0NjUiLCJleHBpcmVBdCI6MTU5ODU4MjgzMywicGVybWlzc2lvbiI6InVzZXIifQ==',
+          index: '2',
         },
       })
       window.open(routeUrl.href, '_blank')
@@ -73,7 +75,7 @@ export default {
       console.log(myRoom)
 
       // 自动订阅
-      // this.autoSubscribe(myRoom)
+      this.autoSubscribe(myRoom)
 
       // 发布
       await this.publish(myRoom)
@@ -107,7 +109,7 @@ export default {
       publishedTracks.forEach(track => track.release())
       this.publishFlag = false
     },
-    /* // 这里的参数 myRoom 是指刚刚加入房间时初始化的 Session 对象, 同上
+    // 这里的参数 myRoom 是指刚刚加入房间时初始化的 Session 对象, 同上
     // trackInfoList 是一个 trackInfo 的列表，订阅支持多个 track 同时订阅。
     async subscribe(myRoom, trackInfoList) {
       // 通过传入 trackId 调用订阅方法发起订阅，成功会返回相应的 Track 对象，也就是远端的 Track 列表了
@@ -141,7 +143,7 @@ export default {
           .catch(e => console.error('subscribe error', e))
       })
       // 就是这样，就像监听 DOM 事件一样通过 on 方法监听相应的事件并给出处理函数即可
-    }, */
+    },
   },
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>学生端</p>
+    <p>学生端{{ index }}</p>
     <div class="tracks-wrap">
       <div class="romotetracks-wrap">
         <p>远端音视频轨</p>
@@ -19,11 +19,6 @@
         <p>当前用户音视频轨</p>
         <div id="localtracks" style="width: 200px;"></div>
       </div>
-      <!-- 其他用户音视频轨 -->
-      <div class="othertracks-wrap">
-        <p>其他用户音视频轨</p>
-        <div id="othertracks" style="width: 200px;"></div>
-      </div>
     </div>
   </div>
 </template>
@@ -34,12 +29,14 @@ export default {
   data() {
     return {
       publishFlag: false,
+      index: '',
     }
   },
   components: {},
   mounted() {
-    const { token } = this.$route.query
+    const { token, index } = this.$route.query
     this.token = token
+    this.index = index
   },
   methods: {
     async joinRoom() {
@@ -61,15 +58,12 @@ export default {
     // trackInfoList 是一个 trackInfo 的列表，订阅支持多个 track 同时订阅。
     async subscribe(myRoom, trackInfoList) {
       // 通过传入 trackId 调用订阅方法发起订阅，成功会返回相应的 Track 对象，也就是远端的 Track 列表了
+      // 只显示老师端
+      const filterdTrackInfoList = trackInfoList.filter(
+        info => info.userId === '123456',
+      )
       const remoteTracks = await myRoom.subscribe(
-        trackInfoList.map(info => {
-          // 不显示老师端
-          console.log('--------------------', info)
-          /* if (info.userId != '234567') {
-            return info.trackId
-          } */
-          return info.trackId
-        }),
+        filterdTrackInfoList.map(info => info.trackId),
       )
 
       // 选择页面上的一个元素作为父元素，播放远端的音视频轨

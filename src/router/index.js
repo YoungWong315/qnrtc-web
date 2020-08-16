@@ -3,7 +3,6 @@ import VueRouter from 'vue-router'
 import RouterGuard from './routerGuard'
 
 import Hq from '@/views/Hq'
-import Teacher from '@/views/Teacher'
 import Student from '@/views/Student'
 
 Vue.use(VueRouter)
@@ -14,11 +13,6 @@ const router = new VueRouter({
       path: '/hq',
       name: 'Hq',
       component: Hq,
-    },
-    {
-      path: '/teacher',
-      name: 'Teacher',
-      component: Teacher,
     },
     {
       path: '/student',

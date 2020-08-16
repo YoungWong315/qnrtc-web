@@ -1,16 +1,17 @@
 <template>
   <div>
     <p>总部端</p>
-    <button @click="joinRoom">发布流</button>
     <button @click="goTeacher">去老师端看</button>
     <button @click="goStudent">去学生端看</button>
-    <div v-if="published">
+    <div>
       <!-- 自己的视频 -->
       <div class="localtracks-wrap">
-        <p>本地音视频轨</p>
         <div id="localtracks"></div>
         <div class="tool-bar">
-          <div @click="quit">
+          <div @click="joinRoom" v-if="!publishFlag">
+            <img src="@/assets/img/call.png" alt="" />
+          </div>
+          <div @click="quit" v-else>
             <img src="@/assets/img/quit.png" alt="" />
           </div>
         </div>
@@ -29,8 +30,7 @@ export default {
   name: 'Hq',
   data() {
     return {
-      published: false,
-      subscribed: false,
+      publishFlag: false,
     }
   },
   components: {},
@@ -54,13 +54,13 @@ export default {
         name: 'Student',
         query: {
           token:
-            'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:_QZ7IwlvbS_laan9E8lKmPuhz04=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDExIiwidXNlcklkIjoiMTIzNDY2IiwiZXhwaXJlQXQiOjE1OTg1NzEyNDYsInBlcm1pc3Npb24iOiJ1c2VyIn0=',
+            'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:AfkVbu_OJAznCbdCZZsw_QyeIqM=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIxMjM0NjYiLCJleHBpcmVBdCI6MTU5ODU4MDkxNiwicGVybWlzc2lvbiI6InVzZXIifQ==',
         },
       })
       window.open(routeUrl.href, '_blank')
     },
     async joinRoom() {
-      this.published = true
+      this.publishFlag = true
       const ROOMTOKEN_1 =
         'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:qXBmwQo51lTjuZ4cjDplF1RtZ3U=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIxMjM0NTYiLCJleHBpcmVBdCI6MTU5ODQ4MjM1NSwicGVybWlzc2lvbiI6ImFkbWluIn0='
       // 初始化一个房间 Session 对象, 这里使用 Track 模式
@@ -105,6 +105,7 @@ export default {
     quit() {
       const publishedTracks = this.myRoom.publishedTracks
       publishedTracks.forEach(track => track.release())
+      this.publishFlag = false
     },
     /* // 这里的参数 myRoom 是指刚刚加入房间时初始化的 Session 对象, 同上
     // trackInfoList 是一个 trackInfo 的列表，订阅支持多个 track 同时订阅。
@@ -180,11 +181,11 @@ export default {
   justify-content: center;
 }
 .tool-bar > div {
-  background: #fff;
-  border-radius: 50%;
+  margin-right: 10px;
+  cursor: pointer;
 }
 .tool-bar img {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
 }
 </style>

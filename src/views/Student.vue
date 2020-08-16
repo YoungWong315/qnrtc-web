@@ -1,16 +1,28 @@
 <template>
   <div>
     <p>学生端</p>
-    <button @click="joinRoom">订阅流</button>
-    <div v-if="subscribed">
+    <div class="tracks-wrap">
       <div class="romotetracks-wrap">
         <p>远端音视频轨</p>
         <div id="remotetracks"></div>
+        <div class="tool-bar">
+          <div @click="joinRoom" v-if="!publishFlag">
+            <img src="@/assets/img/call.png" alt="" />
+          </div>
+          <div @click="quit" v-else>
+            <img src="@/assets/img/quit.png" alt="" />
+          </div>
+        </div>
       </div>
-      <!-- 自己屏幕 -->
+      <!-- 当前用户屏幕 -->
       <div class="localtracks-wrap">
-        <p>用户音视频轨</p>
+        <p>当前用户音视频轨</p>
         <div id="localtracks" style="width: 200px;"></div>
+      </div>
+      <!-- 其他用户音视频轨 -->
+      <div class="othertracks-wrap">
+        <p>其他用户音视频轨</p>
+        <div id="othertracks" style="width: 200px;"></div>
       </div>
     </div>
   </div>
@@ -18,10 +30,10 @@
 
 <script>
 export default {
-  name: 'Student',
+  name: 'Teacher',
   data() {
     return {
-      subscribed: false,
+      publishFlag: false,
     }
   },
   components: {},
@@ -31,14 +43,13 @@ export default {
   },
   methods: {
     async joinRoom() {
-      this.subscribed = true
+      this.publishFlag = true
       // 初始化一个房间 Session 对象, 这里使用 Track 模式
       const myRoom = new this.$QNRTC.TrackModeSession()
+      this.myRoom = myRoom
       // 这里替换成刚刚生成的 RoomToken
       await myRoom.joinRoomWithToken(this.token)
       console.log('joinRoom success!')
-
-      console.log(myRoom)
 
       // 自动订阅
       this.autoSubscribe(myRoom)
@@ -51,7 +62,14 @@ export default {
     async subscribe(myRoom, trackInfoList) {
       // 通过传入 trackId 调用订阅方法发起订阅，成功会返回相应的 Track 对象，也就是远端的 Track 列表了
       const remoteTracks = await myRoom.subscribe(
-        trackInfoList.map(info => info.trackId),
+        trackInfoList.map(info => {
+          // 不显示老师端
+          console.log('--------------------', info)
+          /* if (info.userId != '234567') {
+            return info.trackId
+          } */
+          return info.trackId
+        }),
       )
 
       // 选择页面上的一个元素作为父元素，播放远端的音视频轨
@@ -106,15 +124,23 @@ export default {
         localTrack.play(localElement, true)
       }
     },
+    quit() {
+      this.myRoom.leaveRoom()
+      this.publishFlag = false
+    },
   },
 }
 </script>
 
 <style scoped>
+.tracks-wrap {
+}
 .romotetracks-wrap {
   position: relative;
-  width: 70%;
+  width: 60vw;
+  height: 45vw;
   margin: 0 auto;
+  background: #000;
 }
 .romotetracks-wrap p {
   color: red;
@@ -125,6 +151,7 @@ export default {
 }
 .localtracks-wrap {
   position: relative;
+  margin-top: 10px;
 }
 .localtracks-wrap p {
   color: green;
@@ -132,5 +159,25 @@ export default {
   position: absolute;
   top: 5px;
   left: 5px;
+}
+.localtracks-wrap video {
+  margin-right: 20px;
+}
+.tool-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tool-bar > div {
+  margin-right: 10px;
+  cursor: pointer;
+}
+.tool-bar img {
+  width: 40px;
+  height: 40px;
 }
 </style>

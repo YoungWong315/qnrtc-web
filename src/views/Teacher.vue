@@ -1,16 +1,30 @@
 <template>
   <div>
     <p>老师端</p>
-    <button @click="joinRoom">订阅流</button>
-    <div v-if="subscribed">
+    <button @click="goStudent1">去学生1</button>
+    <button @click="goStudent2">去学生2</button>
+    <div class="tracks-wrap">
       <div class="romotetracks-wrap">
         <p>远端音视频轨</p>
         <div id="remotetracks"></div>
+        <div class="tool-bar">
+          <div @click="joinRoom" v-if="!publishFlag">
+            <img src="@/assets/img/call.png" alt="" />
+          </div>
+          <div @click="quit" v-else>
+            <img src="@/assets/img/quit.png" alt="" />
+          </div>
+        </div>
       </div>
-      <!-- 自己屏幕 -->
+      <!-- 当前用户屏幕 -->
       <div class="localtracks-wrap">
-        <p>用户音视频轨</p>
+        <p>当前用户音视频轨</p>
         <div id="localtracks" style="width: 200px;"></div>
+      </div>
+      <!-- 其他用户音视频轨 -->
+      <div class="othertracks-wrap">
+        <p>其他用户音视频轨</p>
+        <div id="othertracks" style="width: 200px;"></div>
       </div>
     </div>
   </div>
@@ -21,19 +35,42 @@ export default {
   name: 'Teacher',
   data() {
     return {
-      subscribed: false,
+      publishFlag: false,
     }
   },
   components: {},
   mounted() {
     const { token } = this.$route.query
-    this.token = token
+    this.token =
+      token ||
+      'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:qXBmwQo51lTjuZ4cjDplF1RtZ3U=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIxMjM0NTYiLCJleHBpcmVBdCI6MTU5ODQ4MjM1NSwicGVybWlzc2lvbiI6ImFkbWluIn0='
   },
   methods: {
+    goStudent1() {
+      const routeUrl = this.$router.resolve({
+        name: 'Student',
+        query: {
+          token:
+            'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:AfkVbu_OJAznCbdCZZsw_QyeIqM=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIxMjM0NjYiLCJleHBpcmVBdCI6MTU5ODU4MDkxNiwicGVybWlzc2lvbiI6InVzZXIifQ==',
+        },
+      })
+      window.open(routeUrl.href, '_blank')
+    },
+    goStudent2() {
+      const routeUrl = this.$router.resolve({
+        name: 'Student',
+        query: {
+          token:
+            'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:lqqT6agtWcr7Lu5RGKO7z5S-CM8=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIyMzQ1NjciLCJleHBpcmVBdCI6MTU5ODQ4MjM1NSwicGVybWlzc2lvbiI6InVzZXIifQ==',
+        },
+      })
+      window.open(routeUrl.href, '_blank')
+    },
     async joinRoom() {
-      this.subscribed = true
+      this.publishFlag = true
       // 初始化一个房间 Session 对象, 这里使用 Track 模式
       const myRoom = new this.$QNRTC.TrackModeSession()
+      this.myRoom = myRoom
       // 这里替换成刚刚生成的 RoomToken
       await myRoom.joinRoomWithToken(this.token)
       console.log('joinRoom success!')
@@ -104,15 +141,23 @@ export default {
         localTrack.play(localElement, true)
       }
     },
+    quit() {
+      this.myRoom.leaveRoom()
+      this.publishFlag = false
+    },
   },
 }
 </script>
 
 <style scoped>
+.tracks-wrap {
+}
 .romotetracks-wrap {
   position: relative;
-  width: 70%;
+  width: 60vw;
+  height: 45vw;
   margin: 0 auto;
+  background: #000;
 }
 .romotetracks-wrap p {
   color: red;
@@ -123,6 +168,7 @@ export default {
 }
 .localtracks-wrap {
   position: relative;
+  margin-top: 10px;
 }
 .localtracks-wrap p {
   color: green;
@@ -130,5 +176,25 @@ export default {
   position: absolute;
   top: 5px;
   left: 5px;
+}
+.localtracks-wrap video {
+  margin-right: 20px;
+}
+.tool-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tool-bar > div {
+  margin-right: 10px;
+  cursor: pointer;
+}
+.tool-bar img {
+  width: 40px;
+  height: 40px;
 }
 </style>

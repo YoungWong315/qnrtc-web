@@ -1,25 +1,49 @@
 <template>
-  <div>
-    <p>老师端</p>
-    <button @click="goStudent1">去学生端1</button>
-    <button @click="goStudent2">去学生端2</button>
-    <div>
+  <div class="wrap">
+    <div class="navigator">
+      <p>老师端</p>
+      <button @click="goStudent1">去学生端1</button>
+      <button @click="goStudent2">去学生端2</button>
+    </div>
+    <div class="tracks-wrap">
       <!-- 自己的视频 -->
       <div class="localtracks-wrap">
         <div id="localtracks"></div>
         <div class="tool-bar">
+          <!-- camera-video-off -->
+          <div @click="stopVideo">
+            <b-icon
+              font-size="40"
+              icon="camera-video-fill"
+              style="color:#808080;"
+            ></b-icon>
+          </div>
           <div @click="joinRoom" v-if="!publishFlag">
             <img src="@/assets/img/call.png" alt="" />
           </div>
-          <div @click="quit" v-else>
+          <div @click="quit" v-if="publishFlag">
             <img src="@/assets/img/quit.png" alt="" />
+          </div>
+          <!-- mic-mute -->
+          <div @click="mute">
+            <b-icon
+              font-size="40"
+              icon="mic-fill"
+              style="color:#808080;"
+            ></b-icon>
           </div>
         </div>
       </div>
       <!-- 别人的订阅 -->
       <div class="remotetracks-wrap">
         <p>订阅音视频轨</p>
-        <div id="remotetracks" style="width: 200px;"></div>
+        <div
+          v-for="{ track, index } in remotetracks"
+          :key="index"
+          :ref="'remotetracks' + index"
+          id="remotetracks"
+          style="width: 200px;"
+        ></div>
       </div>
     </div>
   </div>
@@ -31,6 +55,7 @@ export default {
   data() {
     return {
       publishFlag: false,
+      remotetracks: [],
     }
   },
   components: {},
@@ -104,11 +129,6 @@ export default {
         localTrack.play(localElement, true)
       }
     },
-    quit() {
-      const publishedTracks = this.myRoom.publishedTracks
-      publishedTracks.forEach(track => track.release())
-      this.publishFlag = false
-    },
     // 这里的参数 myRoom 是指刚刚加入房间时初始化的 Session 对象, 同上
     // trackInfoList 是一个 trackInfo 的列表，订阅支持多个 track 同时订阅。
     async subscribe(myRoom, trackInfoList) {
@@ -117,12 +137,21 @@ export default {
         trackInfoList.map(info => info.trackId),
       )
 
-      // 选择页面上的一个元素作为父元素，播放远端的音视频轨
+      // 遍历返回的远端 Track，调用 play 方法完成在页面上的播放
+      remoteTracks.forEach((remoteTrack, index) => {
+        // 调用 Track 对象的 play 方法在这个元素下播放视频轨
+        this.remotetracks.push(remoteTrack)
+        // TODO: 测试 -----------------------------------------------------<
+        console.log(this.$refs['remotetracks' + index])
+        remoteTrack.play(this.$refs['remotetracks' + index], true)
+      })
+
+      /* // 选择页面上的一个元素作为父元素，播放远端的音视频轨
       const remoteElement = document.getElementById('remotetracks')
       // 遍历返回的远端 Track，调用 play 方法完成在页面上的播放
       for (const remoteTrack of remoteTracks) {
         remoteTrack.play(remoteElement)
-      }
+      } */
     },
     // 这里的参数 myRoom 是指刚刚加入房间时初始化的 Session 对象, 同上
     async autoSubscribe(myRoom) {
@@ -144,17 +173,50 @@ export default {
       })
       // 就是这样，就像监听 DOM 事件一样通过 on 方法监听相应的事件并给出处理函数即可
     },
+    quit() {
+      const publishedTracks = this.myRoom.publishedTracks
+      publishedTracks.forEach(track => track.release())
+      this.publishFlag = false
+    },
+    mute() {
+      const publishedTracks = this.myRoom.publishedTracks
+      // publishedTracks.forEach(track => track.release())
+      this.myRoom.muteTracks(publishedTracks)
+    },
+    stopVideo() {
+      console.log('stopVideo')
+    },
   },
 }
 </script>
 
 <style scoped>
+.wrap {
+  position: relative;
+  height: 100vh;
+  background: #000;
+}
+.navigator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 100;
+}
+.tracks-wrap {
+  position: relative;
+  height: 100%;
+}
 .localtracks-wrap {
   position: relative;
-  width: 60vw;
-  height: 45vw;
+  height: 100%;
   margin: 0 auto;
-  background: #000;
+}
+#localtracks {
+  height: 100%;
+}
+.localtracks-wrap video {
+  height: 100%;
 }
 .localtracks-wrap p {
   color: red;
@@ -162,9 +224,12 @@ export default {
   position: absolute;
   top: 5px;
   left: 5px;
+  z-index: 100;
 }
-/* .remotetracks-wrap {
-  position: relative;
+.remotetracks-wrap {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
 }
 .remotetracks-wrap p {
   color: green;
@@ -172,7 +237,7 @@ export default {
   position: absolute;
   top: 5px;
   left: 5px;
-} */
+}
 .tool-bar {
   position: absolute;
   bottom: 20px;

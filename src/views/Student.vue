@@ -1,16 +1,34 @@
 <template>
-  <div>
-    <p>学生端{{ index }}</p>
+  <div class="wrap">
+    <div class="navigator">
+      <p>学生端{{ index }}</p>
+    </div>
     <div class="tracks-wrap">
       <div class="romotetracks-wrap">
         <p>远端音视频轨</p>
         <div id="remotetracks"></div>
         <div class="tool-bar">
+          <!-- camera-video-off -->
+          <div @click="stopVideo">
+            <b-icon
+              font-size="40"
+              icon="camera-video-fill"
+              style="color:#808080;"
+            ></b-icon>
+          </div>
           <div @click="joinRoom" v-if="!publishFlag">
             <img src="@/assets/img/call.png" alt="" />
           </div>
-          <div @click="quit" v-else>
+          <div @click="quit" v-if="publishFlag">
             <img src="@/assets/img/quit.png" alt="" />
+          </div>
+          <!-- mic-mute -->
+          <div @click="mute">
+            <b-icon
+              font-size="40"
+              icon="mic-fill"
+              style="color:#808080;"
+            ></b-icon>
           </div>
         </div>
       </div>
@@ -122,19 +140,45 @@ export default {
       this.myRoom.leaveRoom()
       this.publishFlag = false
     },
+    mute() {
+      const publishedTracks = this.myRoom.publishedTracks
+      // publishedTracks.forEach(track => track.release())
+      this.myRoom.muteTracks(publishedTracks)
+    },
+    stopVideo() {
+      console.log('stopVideo')
+    },
   },
 }
 </script>
 
 <style scoped>
+.wrap {
+  position: relative;
+  height: 100vh;
+  background: #000;
+}
+.navigator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 100;
+}
 .tracks-wrap {
+  position: relative;
+  height: 100%;
 }
 .romotetracks-wrap {
   position: relative;
-  width: 60vw;
-  height: 45vw;
   margin: 0 auto;
-  background: #000;
+  height: 100%;
+}
+#remotetracks {
+  height: 100%;
+}
+.romotetracks-wrap video {
+  height: 100%;
 }
 .romotetracks-wrap p {
   color: red;
@@ -144,8 +188,9 @@ export default {
   left: 5px;
 }
 .localtracks-wrap {
-  position: relative;
-  margin-top: 10px;
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
 }
 .localtracks-wrap p {
   color: green;
@@ -153,9 +198,6 @@ export default {
   position: absolute;
   top: 5px;
   left: 5px;
-}
-.localtracks-wrap video {
-  margin-right: 20px;
 }
 .tool-bar {
   position: absolute;

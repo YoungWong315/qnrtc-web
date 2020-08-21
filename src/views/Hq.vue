@@ -27,12 +27,6 @@
               style="color:#808080;"
             ></b-icon>
           </div>
-          <!-- <div @click="joinRoom" v-if="!publishFlag">
-            <img src="@/assets/img/call.png" alt="" />
-          </div>
-          <div @click="quit" v-if="publishFlag">
-            <img src="@/assets/img/quit.png" alt="" />
-          </div> -->
           <!-- mic-mute -->
           <div @click="mute">
             <b-icon

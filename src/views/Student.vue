@@ -12,21 +12,24 @@
           <div @click="stopVideo">
             <b-icon
               font-size="40"
-              icon="camera-video-fill"
+              :icon="
+                closeVideoFlag ? 'camera-video-off-fill' : 'camera-video-fill'
+              "
               style="color:#808080;"
             ></b-icon>
           </div>
-          <div @click="joinRoom" v-if="!publishFlag">
-            <img src="@/assets/img/call.png" alt="" />
-          </div>
-          <div @click="quit" v-if="publishFlag">
-            <img src="@/assets/img/quit.png" alt="" />
+          <div @click="joinRoom">
+            <b-icon
+              font-size="50"
+              :icon="publishFlag ? 'stop-fill' : 'play-fill'"
+              style="color:#808080;"
+            ></b-icon>
           </div>
           <!-- mic-mute -->
           <div @click="mute">
             <b-icon
-              font-size="40"
-              icon="mic-fill"
+              font-size="32"
+              :icon="muteFlag ? 'mic-mute-fill' : 'mic-fill'"
               style="color:#808080;"
             ></b-icon>
           </div>
@@ -48,6 +51,9 @@ export default {
     return {
       publishFlag: false,
       index: '',
+
+      muteFlag: false,
+      closeVideoFlag: false,
     }
   },
   components: {},
@@ -136,17 +142,29 @@ export default {
         localTrack.play(localElement, true)
       }
     },
-    quit() {
-      this.myRoom.leaveRoom()
-      this.publishFlag = false
+    leaveRoom() {
+      try {
+        this.myRoom.leaveRoom()
+        this.publishFlag = false
+      } catch (e) {
+        console.log(e)
+      }
     },
     mute() {
-      const publishedTracks = this.myRoom.publishedTracks
-      // publishedTracks.forEach(track => track.release())
-      this.myRoom.muteTracks(publishedTracks)
+      this.muteFlag = !this.muteFlag
+      try {
+        const publishedTracks = this.myRoom.publishedTracks
+        // publishedTracks.forEach(track => track.release())
+        if (publishedTracks) {
+          this.myRoom.muteTracks(publishedTracks)
+        }
+      } catch (e) {
+        console.log(e)
+      }
     },
     stopVideo() {
       console.log('stopVideo')
+      this.closeVideoFlag = !this.closeVideoFlag
     },
   },
 }

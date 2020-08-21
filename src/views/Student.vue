@@ -134,6 +134,7 @@ export default {
       // 在这里添加
       // 获取页面上的一个元素作为播放画面的父元素
       const localElement = document.getElementById('localtracks')
+      localElement.innerHTML = '' // 清除之前的数据
       // 遍历本地采集的 Track 对象
       for (const localTrack of localTracks) {
         // 如果这是麦克风采集的音频 Track，我们就不播放它。

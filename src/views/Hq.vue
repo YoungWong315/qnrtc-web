@@ -14,21 +14,30 @@
           <div @click="stopVideo">
             <b-icon
               font-size="40"
-              icon="camera-video-fill"
+              :icon="
+                closeVideoFlag ? 'camera-video-off-fill' : 'camera-video-fill'
+              "
               style="color:#808080;"
             ></b-icon>
           </div>
-          <div @click="joinRoom" v-if="!publishFlag">
+          <div @click="joinRoom">
+            <b-icon
+              font-size="50"
+              :icon="publishFlag ? 'stop-fill' : 'play-fill'"
+              style="color:#808080;"
+            ></b-icon>
+          </div>
+          <!-- <div @click="joinRoom" v-if="!publishFlag">
             <img src="@/assets/img/call.png" alt="" />
           </div>
           <div @click="quit" v-if="publishFlag">
             <img src="@/assets/img/quit.png" alt="" />
-          </div>
+          </div> -->
           <!-- mic-mute -->
           <div @click="mute">
             <b-icon
-              font-size="40"
-              icon="mic-fill"
+              font-size="32"
+              :icon="muteFlag ? 'mic-mute-fill' : 'mic-fill'"
               style="color:#808080;"
             ></b-icon>
           </div>
@@ -56,6 +65,9 @@ export default {
     return {
       publishFlag: false,
       remotetracks: [],
+
+      muteFlag: false,
+      closeVideoFlag: false,
     }
   },
   components: {},
@@ -87,6 +99,10 @@ export default {
       window.open(routeUrl.href, '_blank')
     },
     async joinRoom() {
+      if (this.publishFlag) {
+        this.leaveRoom()
+        return
+      }
       this.publishFlag = true
       const ROOMTOKEN_1 =
         'WPXVZzkt4HEzsZdmFez23jL6nb_jWXPmx_sUX7lz:qXBmwQo51lTjuZ4cjDplF1RtZ3U=:eyJhcHBJZCI6ImYyZTByMXdueCIsInJvb21OYW1lIjoidGVzdC0wMDEiLCJ1c2VySWQiOiIxMjM0NTYiLCJleHBpcmVBdCI6MTU5ODQ4MjM1NSwicGVybWlzc2lvbiI6ImFkbWluIn0='
@@ -173,18 +189,30 @@ export default {
       })
       // 就是这样，就像监听 DOM 事件一样通过 on 方法监听相应的事件并给出处理函数即可
     },
-    quit() {
-      const publishedTracks = this.myRoom.publishedTracks
-      publishedTracks.forEach(track => track.release())
-      this.publishFlag = false
+    leaveRoom() {
+      try {
+        const publishedTracks = this.myRoom.publishedTracks
+        publishedTracks.forEach(track => track.release())
+        this.publishFlag = false
+      } catch (e) {
+        console.log(e)
+      }
     },
     mute() {
-      const publishedTracks = this.myRoom.publishedTracks
-      // publishedTracks.forEach(track => track.release())
-      this.myRoom.muteTracks(publishedTracks)
+      this.muteFlag = !this.muteFlag
+      try {
+        const publishedTracks = this.myRoom.publishedTracks
+        // publishedTracks.forEach(track => track.release())
+        if (publishedTracks) {
+          this.myRoom.muteTracks(publishedTracks)
+        }
+      } catch (e) {
+        console.log(e)
+      }
     },
     stopVideo() {
       console.log('stopVideo')
+      this.closeVideoFlag = !this.closeVideoFlag
     },
   },
 }

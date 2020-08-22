@@ -209,7 +209,7 @@ export default {
 .localtracks-wrap {
   position: absolute;
   left: 20px;
-  bottom: 20px;
+  bottom: 100px;
 }
 .localtracks-wrap p {
   color: green;

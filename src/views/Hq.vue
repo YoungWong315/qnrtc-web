@@ -39,13 +39,11 @@
       </div>
       <!-- 别人的订阅 -->
       <div class="remotetracks-wrap">
-        <p>订阅音视频轨</p>
+        <!-- <div id="remotetracks"></div> -->
         <div
-          v-for="{ track, index } in remotetracks"
+          v-for="(track, index) in remotetracks"
           :key="index"
           :ref="'remotetracks' + index"
-          id="remotetracks"
-          style="width: 200px;"
         ></div>
       </div>
     </div>
@@ -107,8 +105,6 @@ export default {
       await myRoom.joinRoomWithToken(ROOMTOKEN_1)
       console.log('joinRoom success!')
 
-      console.log(myRoom)
-
       // 自动订阅
       this.autoSubscribe(myRoom)
 
@@ -150,10 +146,16 @@ export default {
       // 遍历返回的远端 Track，调用 play 方法完成在页面上的播放
       remoteTracks.forEach((remoteTrack, index) => {
         // 调用 Track 对象的 play 方法在这个元素下播放视频轨
-        this.remotetracks.push(remoteTrack)
-        // TODO: 测试 -----------------------------------------------------<
-        console.log(this.$refs['remotetracks' + index])
-        remoteTrack.play(this.$refs['remotetracks' + index], true)
+        // 因为每个人的直播有audio, video的两个track, 所以每两个加入添加一个remotetracks
+        if ((index + 1) % 2 !== 0) {
+          this.remotetracks.push(remoteTrack)
+        }
+        this.$nextTick(() => {
+          remoteTrack.play(
+            this.$refs['remotetracks' + (this.remotetracks.length - 1)][0],
+            true,
+          )
+        })
       })
 
       /* // 选择页面上的一个元素作为父元素，播放远端的音视频轨
@@ -251,14 +253,14 @@ export default {
 .remotetracks-wrap {
   position: absolute;
   left: 20px;
-  bottom: 20px;
+  bottom: 100px;
+
+  display: flex;
+  flex-wrap: wrap;
 }
-.remotetracks-wrap p {
-  color: green;
-  background: rgba(255, 255, 255, 0.8);
-  position: absolute;
-  top: 5px;
-  left: 5px;
+.remotetracks-wrap > div {
+  width: 150px;
+  margin-right: 20px;
 }
 .tool-bar {
   position: absolute;

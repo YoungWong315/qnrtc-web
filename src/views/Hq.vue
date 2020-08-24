@@ -207,8 +207,21 @@ export default {
       }
     },
     stopVideo() {
-      console.log('stopVideo')
       this.closeVideoFlag = !this.closeVideoFlag
+      try {
+        const publishedTracks = this.myRoom.publishedTracks
+        // publishedTracks.forEach(track => track.release())
+        publishedTracks.forEach(track => {
+          // muteTracks 文档
+          // https://doc.qnsdk.com/rtn/web/docs/pub_unpub_tracks
+          /* if (track.) {
+            this.myRoom.muteTracks(publishedTracks)
+
+          } */
+        })
+      } catch (e) {
+        console.log(e)
+      }
     },
   },
 }

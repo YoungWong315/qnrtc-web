@@ -11,11 +11,11 @@
         <div id="localtracks"></div>
         <div class="tool-bar">
           <!-- camera-video-off -->
-          <div @click="stopVideo">
+          <div @click="muteVideo">
             <b-icon
               font-size="40"
               :icon="
-                closeVideoFlag ? 'camera-video-off-fill' : 'camera-video-fill'
+                muteVideoFlag ? 'camera-video-off-fill' : 'camera-video-fill'
               "
               style="color:#808080;"
             ></b-icon>
@@ -28,7 +28,7 @@
             ></b-icon>
           </div>
           <!-- mic-mute -->
-          <div @click="mute">
+          <div @click="muteAudio">
             <b-icon
               font-size="32"
               :icon="muteFlag ? 'mic-mute-fill' : 'mic-fill'"
@@ -59,7 +59,7 @@ export default {
       remotetracks: [],
 
       muteFlag: false,
-      closeVideoFlag: false,
+      muteVideoFlag: false,
     }
   },
   components: {},
@@ -194,31 +194,46 @@ export default {
         console.log(e)
       }
     },
-    mute() {
+    muteAudio() {
       this.muteFlag = !this.muteFlag
       try {
         const publishedTracks = this.myRoom.publishedTracks
-        // publishedTracks.forEach(track => track.release())
         if (publishedTracks) {
-          this.myRoom.muteTracks(publishedTracks)
+          let muteTracks = []
+          publishedTracks.forEach(track => {
+            // muteTracks 文档
+            // https://doc.qnsdk.com/rtn/web/docs/pub_unpub_tracks
+            const { kind, trackId } = track.info
+            if (kind === 'audio') {
+              muteTracks.push({
+                trackId,
+                muted: this.muteFlag,
+              })
+            }
+          })
+          this.myRoom.muteTracks(muteTracks)
         }
       } catch (e) {
         console.log(e)
       }
     },
-    stopVideo() {
-      this.closeVideoFlag = !this.closeVideoFlag
+    muteVideo() {
+      this.muteVideoFlag = !this.muteVideoFlag
       try {
         const publishedTracks = this.myRoom.publishedTracks
-        // publishedTracks.forEach(track => track.release())
+        let muteTracks = []
         publishedTracks.forEach(track => {
           // muteTracks 文档
           // https://doc.qnsdk.com/rtn/web/docs/pub_unpub_tracks
-          /* if (track.) {
-            this.myRoom.muteTracks(publishedTracks)
-
-          } */
+          const { kind, trackId } = track.info
+          if (kind === 'video') {
+            muteTracks.push({
+              trackId,
+              muted: this.muteVideoFlag,
+            })
+          }
         })
+        this.myRoom.muteTracks(muteTracks)
       } catch (e) {
         console.log(e)
       }
